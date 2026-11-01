@@ -53,4 +53,30 @@ public class Reservation {
             orphanRemoval = true
     )
     private List<ReservationLine> lines = new ArrayList<>();
+
+    public void releaseReservedStock() {
+
+        for (ReservationLine line : lines) {
+
+            TicketCategoriesPerEvent category = line.getCategory();
+
+            if (category == null) {
+                continue;
+            }
+
+            int remaining = Math.max(
+                    0,
+                    category.getReservedQuantity() - line.getQuantity());
+
+            category.setReservedQuantity(remaining);
+        }
+    }
+
+    public void expire() {
+        this.status = ReservationStatus.EXPIRED;
+    }
+
+    public void cancel() {
+        this.status = ReservationStatus.CANCELLED;
+    }
 }

@@ -11,7 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
 
-    // Entity vers Response DTO
     @Mapping(source = "client.id", target = "clientId")
     ReservationResponseDto toResponse(Reservation reservation);
 

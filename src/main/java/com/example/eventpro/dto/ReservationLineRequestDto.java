@@ -15,4 +15,8 @@ public class ReservationLineRequestDto {
     @NotNull(message = "La quantité est obligatoire")
     @Min(value = 1, message = "La quantité doit être au moins 1")
     private Integer quantity;
+
+    public Long getEventCategoryId() {
+        return categoryId;
+    }
 }

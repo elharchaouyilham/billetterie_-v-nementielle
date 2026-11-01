@@ -18,6 +18,10 @@ public class ReservationRequestDto {
     @Positive(message = "L'ID de l'événement doit être positif")
     private Long eventId;
 
+    @NotNull(message = "Le client est obligatoire")
+    @Positive(message = "L'ID du client doit être positif")
+    private Long clientId;
+
     @NotEmpty(
             message = "La réservation doit contenir au moins une ligne"
     )
@@ -25,7 +29,4 @@ public class ReservationRequestDto {
     private List<ReservationLineRequestDto> lines;
 
     private String promoCode;
-
-    public Long getClientId() {
-    }
 }

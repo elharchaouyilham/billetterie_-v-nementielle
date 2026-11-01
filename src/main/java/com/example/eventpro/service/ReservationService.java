@@ -179,7 +179,6 @@ public class ReservationService {
                                 + category.getCategory().getName());
             }
 
-            // Bloquer temporairement les places
             category.setReservedQuantity(
                     category.getReservedQuantity() + quantity);
 
@@ -198,7 +197,6 @@ public class ReservationService {
             subtotal = subtotal.add(lineSubtotal);
         }
 
-        // Promotion facultative
         if (request.getPromoCode() != null
                 && !request.getPromoCode().isBlank()) {
 
@@ -237,7 +235,6 @@ public class ReservationService {
         return reservationMapper.toResponse(saved);
     }
 
-    // 2. Récupérer une réservation
     @Transactional(readOnly = true)
     public ReservationResponseDto getReservationById(Long id) {
 
@@ -249,11 +246,85 @@ public class ReservationService {
         return reservationMapper.toResponse(reservation);
     }
 
-    // 3. Récupérer toutes les réservations
     @Transactional(readOnly = true)
     public List<ReservationResponseDto> getAllReservations() {
 
         return reservationMapper.toResponseList(
                 reservationRepository.findAll());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDto> getReservationsByClient(
+            Long clientId) {
+
+        if (!clientRepository.existsById(clientId)) {
+            throw new ResourceNotFoundException(
+                    "Client introuvable : " + clientId);
+        }
+
+        return reservationMapper.toResponseList(
+                reservationRepository.findByClient_Id(clientId));
+    }
+
+    public ReservationResponseDto cancelReservation(Long id) {
+
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Réservation introuvable : " + id));
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED
+                || reservation.getStatus() == ReservationStatus.EXPIRED
+                || reservation.getStatus() == ReservationStatus.REFUNDED) {
+            throw new IllegalStateException(
+                    "Cette réservation ne peut pas être annulée.");
+        }
+
+        if (reservation.getStatus() == ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException(
+                    "Une réservation confirmée doit faire l'objet d'un remboursement.");
+        }
+
+        reservation.releaseReservedStock();
+        reservation.cancel();
+
+        return reservationMapper.toResponse(
+                reservationRepository.save(reservation));
+    }
+
+    public int expireReservations() {
+
+        Instant now = Instant.now();
+
+        List<Long> candidates =
+                reservationRepository.findExpiredReservationIds(
+                        ReservationStatus.PENDING_PAYMENT,
+                        now);
+
+        int expiredCount = 0;
+
+        for (Long candidateId : candidates) {
+
+            Reservation reservation = reservationRepository
+                    .findByIdForUpdate(candidateId)
+                    .orElse(null);
+
+            if (reservation == null
+                    || reservation.getStatus()
+                    != ReservationStatus.PENDING_PAYMENT) {
+                continue;
+            }
+
+            if (reservation.getExpirationDate() != null
+                    && reservation.getExpirationDate().isAfter(now)) {
+                continue;
+            }
+
+            reservation.releaseReservedStock();
+            reservation.expire();
+            expiredCount++;
+        }
+
+        return expiredCount;
     }
 }
