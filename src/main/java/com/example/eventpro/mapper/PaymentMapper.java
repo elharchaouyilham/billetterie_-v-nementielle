@@ -7,14 +7,16 @@ import com.example.eventpro.entity.Payment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
 
-    // Entity vers Response DTO
     @Mapping(source = "reservation.id", target = "reservationId")
     PaymentResponseDto toResponse(Payment payment);
 
-    // Request DTO vers Entity
+    List<PaymentResponseDto> toResponseList(List<Payment> payments);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reservation", ignore = true)
     @Mapping(target = "reference", ignore = true)
