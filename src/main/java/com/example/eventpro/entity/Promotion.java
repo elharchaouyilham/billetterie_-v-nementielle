@@ -66,7 +66,6 @@ public class Promotion {
             discount = discountValue;
         }
 
-        // Le discount ne peut pas dépasser le sous-total.
         if (discount.compareTo(subtotal) > 0) {
             discount = subtotal;
         }

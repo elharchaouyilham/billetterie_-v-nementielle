@@ -27,7 +27,6 @@ public class EventService {
         this.organizerRepository = organizerRepository;
     }
 
-    // 1. Créer un événement
     public Event createEvent(Event event, Long organizerId) {
 
         Organizer organizer = organizerRepository.findById(organizerId)
@@ -42,13 +41,11 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    // 2. Récupérer tous les événements
     @Transactional(readOnly = true)
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
 
-    // 3. Récupérer un événement par son ID
     @Transactional(readOnly = true)
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
@@ -57,14 +54,12 @@ public class EventService {
                                 "Événement introuvable : " + id));
     }
 
-    // 4. Récupérer les événements publiés
     @Transactional(readOnly = true)
     public List<Event> getPublishedEvents() {
         return eventRepository.findByStatus(
                 EventStatus.PUBLISHED);
     }
 
-    // 5. Modifier un événement
     public Event updateEvent(Long id, Event updatedEvent) {
 
         Event event = getEventById(id);
@@ -88,7 +83,6 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    // 6. Publier un événement
     public Event publishEvent(Long id) {
 
         Event event = getEventById(id);
@@ -103,7 +97,6 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    // 7. Annuler un événement
     public Event cancelEvent(Long id) {
 
         Event event = getEventById(id);

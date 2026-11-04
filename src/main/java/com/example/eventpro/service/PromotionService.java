@@ -31,7 +31,6 @@ public class PromotionService {
         this.organizerRepository = organizerRepository;
     }
 
-    // 1. Créer une promotion
     public Promotion createPromotion(
             Promotion promotion,
             Long organizerId) {
