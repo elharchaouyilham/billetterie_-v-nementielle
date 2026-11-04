@@ -34,4 +34,11 @@ public class TicketCategoriesPerEvent {
 
     @Column(nullable = false)
     private int maxQuotaPerClient;
+
+    @Column(nullable = false)
+    private int reservedQuantity;
+
+    public int getAvailableQuantity() {
+        return totalQuantity - reservedQuantity;
+    }
 }
